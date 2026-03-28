@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* ─── SGAD Design System ─────────────────────────────────────── */
+@theme inline {
+  /* Colours */
+  --color-black:       #0A0A0C;
+  --color-dark:        #111118;
+  --color-navy:        #1A1F35;
+  --color-gold:        #C9A96E;
+  --color-gold-light:  #E8C98A;
+  --color-cream:       #FAF8F4;
+  --color-stone:       #F0EDE7;
+  --color-muted:       #858585;
+  --color-text:        #2A2A2A;
+  --color-border:      #E5E3DF;
+
+  /* Typography */
+  --font-sans:         var(--font-inter);
+  --font-serif:        var(--font-playfair);
+}
+
+/* ─── Base ───────────────────────────────────────────────────── */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #FAF8F4;
+  color: #2A2A2A;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-playfair), Georgia, serif;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: #C9A96E;
+  color: #0A0A0C;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #111118; }
+::-webkit-scrollbar-thumb { background: #C9A96E; border-radius: 3px; }
+
+/* ─── Utilities ──────────────────────────────────────────────── */
+.hero-overlay {
+  background: linear-gradient(
+    to right,
+    rgba(10,10,12,0.85) 0%,
+    rgba(10,10,12,0.55) 50%,
+    rgba(10,10,12,0.15) 100%
+  );
+}
+
+.gold-line::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 2px;
+  background: #C9A96E;
+  margin-top: 1rem;
+}
+
+.eyebrow {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #C9A96E;
+}
+
+.section-pt { padding-top: clamp(4rem, 8vw, 8rem); }
+.section-pb { padding-bottom: clamp(4rem, 8vw, 8rem); }
+.section-py { padding-top: clamp(4rem, 8vw, 8rem); padding-bottom: clamp(4rem, 8vw, 8rem); }
+
+/* ─── Image Hover ────────────────────────────────────────────── */
+.img-hover-zoom {
+  overflow: hidden;
+}
+.img-hover-zoom img,
+.img-hover-zoom .next-image-wrapper {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.img-hover-zoom:hover img,
+.img-hover-zoom:hover .next-image-wrapper {
+  transform: scale(1.06);
+}
+
+/* ─── Clip paths ─────────────────────────────────────────────── */
+.clip-diagonal {
+  clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+}
+.clip-diagonal-rev {
+  clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 100%);
+}
+
