@@ -26,12 +26,16 @@ export default async function AdminDashboardPage() {
   return (
     <div className="flex min-h-screen">
       <AdminNav userName={session.user?.name} />
+
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-5xl mx-auto">
+          {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-              <p className="text-gray-400 text-sm mt-1">Welcome back, {session.user?.name}</p>
+              <p className="text-gray-400 text-sm mt-1">
+                Welcome back, {session.user?.name}
+              </p>
             </div>
             <Link
               href="/admin/projects/new"
@@ -42,6 +46,7 @@ export default async function AdminDashboardPage() {
             </Link>
           </div>
 
+          {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
               { label: "Total Projects", value: projectCount, icon: Images, color: "text-[#C9A84C]" },
@@ -57,16 +62,21 @@ export default async function AdminDashboardPage() {
             ))}
           </div>
 
+          {/* Recent Projects */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
               <h2 className="font-medium text-white">Recent Projects</h2>
-              <Link href="/admin/projects" className="text-[#C9A84C] text-sm hover:underline">View all</Link>
+              <Link href="/admin/projects" className="text-[#C9A84C] text-sm hover:underline">
+                View all
+              </Link>
             </div>
             <div className="divide-y divide-gray-800">
               {recentProjects.length === 0 && (
                 <p className="text-gray-500 text-sm px-6 py-8 text-center">
                   No projects yet.{" "}
-                  <Link href="/admin/projects/new" className="text-[#C9A84C] hover:underline">Create your first one.</Link>
+                  <Link href="/admin/projects/new" className="text-[#C9A84C] hover:underline">
+                    Create your first one.
+                  </Link>
                 </p>
               )}
               {(recentProjects as (typeof recentProjects)[number][]).map((p) => (
@@ -75,19 +85,26 @@ export default async function AdminDashboardPage() {
                     <div className="text-sm font-medium text-white">{p.title}</div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-xs text-gray-500 capitalize">{p.category}</span>
-                      <span className="text-gray-700">\u00b7</span>
+                      <span className="text-gray-700">&middot;</span>
                       <span className="text-xs text-gray-500">{p._count.media} media files</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      p.status === "published"
-                        ? "bg-emerald-950/50 text-emerald-400 border border-emerald-800/50"
-                        : "bg-gray-800 text-gray-400 border border-gray-700"
-                    }`}>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        p.status === "published"
+                          ? "bg-emerald-950/50 text-emerald-400 border border-emerald-800/50"
+                          : "bg-gray-800 text-gray-400 border border-gray-700"
+                      }`}
+                    >
                       {p.status}
                     </span>
-                    <Link href={`/admin/projects/${p.id}`} className="text-xs text-[#C9A84C] hover:underline">Edit</Link>
+                    <Link
+                      href={`/admin/projects/${p.id}`}
+                      className="text-xs text-[#C9A84C] hover:underline"
+                    >
+                      Edit
+                    </Link>
                   </div>
                 </div>
               ))}
