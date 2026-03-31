@@ -22,5 +22,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/admin/:path*", "/((?!_next|favicon|api|uploads|portfolio).*))"],
+  matcher: ["/admin/:path*", "/((?!_next|favicon|api|uploads|portfolio).*)"]
 };

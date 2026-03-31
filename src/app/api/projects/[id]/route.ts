@@ -6,7 +6,6 @@ import path from "path";
 
 type Params = { params: Promise<{ id: string }> };
 
-// ─── GET /api/projects/[id] ───────────────────────────────────────────────────
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   const project = await prisma.project.findUnique({
@@ -17,7 +16,6 @@ export async function GET(_req: NextRequest, { params }: Params) {
   return NextResponse.json(project);
 }
 
-// ─── PUT /api/projects/[id] — update (admin only) ────────────────────────────
 export async function PUT(req: NextRequest, { params }: Params) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -45,7 +43,6 @@ export async function PUT(req: NextRequest, { params }: Params) {
   return NextResponse.json(project);
 }
 
-// ─── DELETE /api/projects/[id] — remove (admin only) ─────────────────────────
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -67,6 +64,5 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   }
 
   await prisma.project.delete({ where: { id } });
-
   return NextResponse.json({ success: true });
 }

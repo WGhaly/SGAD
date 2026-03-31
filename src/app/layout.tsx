@@ -20,7 +20,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "SGAD — Architecture, Interior Design & Fitout | Egypt",
+    default: "SGAD \u2014 Architecture, Interior Design & Fitout | Egypt",
     template: "%s | SGAD",
   },
   description:
@@ -42,24 +42,19 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "SGAD — Architecture & Interior Design",
+    siteName: "SGAD \u2014 Architecture & Interior Design",
   },
 };
 
 export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "";
   const isAdmin = pathname.startsWith("/admin");
 
   return (
-    <html
-      lang="en"
-      className={`${playfair.variable} ${inter.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${playfair.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#FAF8F4]">
         {!isAdmin && <Navbar />}
         <main className="flex-1">{children}</main>
