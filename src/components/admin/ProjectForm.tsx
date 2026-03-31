@@ -1,0 +1,286 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Upload, X, Loader2, Film } from "lucide-react";
+
+interface MediaItem {
+  id: string;
+  type: string;
+  url: string;
+  filename: string;
+  caption: string | null;
+}
+
+interface ProjectFormProps {
+  mode: "create" | "edit";
+  projectId?: string;
+  initialData?: {
+    title: string;
+    description: string;
+    category: string;
+    location: string;
+    coverImage: string;
+    status: string;
+    sortOrder: number;
+    media: MediaItem[];
+  };
+}
+
+const CATEGORIES = [
+  { value: "banking", label: "Banking & Finance" },
+  { value: "hospitality", label: "Hotels & Hospitality" },
+  { value: "restaurants", label: "Restaurants & Retail" },
+  { value: "corporate", label: "Corporate & Commercial" },
+  { value: "residential", label: "Residential" },
+];
+
+export default function ProjectForm({ mode, projectId, initialData }: ProjectFormProps) {
+  const router = useRouter();
+
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [category, setCategory] = useState(initialData?.category ?? "banking");
+  const [location, setLocation] = useState(initialData?.location ?? "");
+  const [coverImage, setCoverImage] = useState(initialData?.coverImage ?? "");
+  const [status, setStatus] = useState(initialData?.status ?? "published");
+  const [sortOrder, setSortOrder] = useState(initialData?.sortOrder ?? 0);
+  const [media, setMedia] = useState<MediaItem[]>(initialData?.media ?? []);
+
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
+  const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  async function handleSave() {
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    const payload = { title, description, category, location, coverImage, status, sortOrder: Number(sortOrder) };
+    const url = mode === "create" ? "/api/projects" : `/api/projects/${projectId}`;
+    const method = mode === "create" ? "POST" : "PUT";
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    setSaving(false);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      setError(err.error ?? "Failed to save project");
+      return;
+    }
+
+    const saved = await res.json();
+    setSuccess(mode === "create" ? "Project created!" : "Project saved!");
+
+    if (mode === "create") {
+      router.push(`/admin/projects/${saved.id}`);
+    } else {
+      router.refresh();
+    }
+  }
+
+  async function handleFileUpload(files: FileList | null) {
+    if (!files || !projectId) return;
+    setUploading(true);
+    setError("");
+
+    const formData = new FormData();
+    Array.from(files).forEach((f) => formData.append("files", f));
+    setUploadProgress(`Uploading ${files.length} file(s)\u2026`);
+
+    const res = await fetch(`/api/projects/${projectId}/media`, {
+      method: "POST",
+      body: formData,
+    });
+
+    setUploading(false);
+    setUploadProgress("");
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      setError(err.error ?? "Upload failed");
+      return;
+    }
+
+    const newMedia: MediaItem[] = await res.json();
+    setMedia((prev) => [...prev, ...newMedia]);
+  }
+
+  async function handleDeleteMedia(mediaId: string) {
+    if (!confirm("Remove this file?")) return;
+    const res = await fetch(`/api/media/${mediaId}`, { method: "DELETE" });
+    if (res.ok) setMedia((prev) => prev.filter((m) => m.id !== mediaId));
+  }
+
+  const onDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      handleFileUpload(e.dataTransfer.files);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [projectId]
+  );
+
+  const inputClass =
+    "w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/50 focus:border-[#C9A84C] transition text-sm";
+
+  return (
+    <div className="space-y-8">
+      {error && (
+        <div className="bg-red-950/40 border border-red-800/60 text-red-300 text-sm px-4 py-3 rounded-lg">{error}</div>
+      )}
+      {success && (
+        <div className="bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 text-sm px-4 py-3 rounded-lg">{success}</div>
+      )}
+
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-5">
+        <h2 className="font-medium text-white">Project Details</h2>
+
+        <div>
+          <label className="block text-sm text-gray-400 mb-1.5">Title *</label>
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} placeholder="e.g. EGBank Mohandsin Branch" />
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-400 mb-1.5">Description *</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className={inputClass + " resize-none"} placeholder="Describe the project scope, design approach, and key highlights\u2026" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Category *</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass}>
+              {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Location</label>
+            <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} className={inputClass} placeholder="e.g. Cairo, Egypt" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Status</label>
+            <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Sort Order</label>
+            <input type="number" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} className={inputClass} min={0} />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm text-gray-400 mb-1.5">Cover Image URL</label>
+          <input type="text" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} className={inputClass} placeholder="/portfolio/Egbank.jpeg  or  /uploads/project-id/image.jpg" />
+          {coverImage && (
+            <div className="mt-2 rounded-lg overflow-hidden h-32 w-full relative bg-gray-800">
+              <Image src={coverImage} alt="Cover preview" fill className="object-cover" unoptimized />
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            onClick={handleSave}
+            disabled={saving || !title.trim()}
+            className="px-6 py-2.5 bg-[#C9A84C] hover:bg-[#b8943e] disabled:opacity-60 disabled:cursor-not-allowed text-gray-950 font-semibold rounded-lg text-sm transition"
+          >
+            {saving ? (
+              <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Saving\u2026</span>
+            ) : mode === "create" ? "Create Project" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+
+      {mode === "edit" && projectId && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-5">
+          <h2 className="font-medium text-white">Media Gallery</h2>
+
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+            className={`relative border-2 border-dashed rounded-xl p-8 text-center transition cursor-pointer ${
+              dragOver ? "border-[#C9A84C] bg-[#C9A84C]/5" : "border-gray-700 hover:border-gray-500"
+            }`}
+          >
+            <label className="absolute inset-0 cursor-pointer" htmlFor="file-upload" />
+            <input
+              id="file-upload"
+              type="file"
+              multiple
+              accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+              className="hidden"
+              onChange={(e) => handleFileUpload(e.target.files)}
+            />
+            {uploading ? (
+              <div className="flex flex-col items-center gap-2 text-gray-400">
+                <Loader2 className="w-8 h-8 animate-spin text-[#C9A84C]" />
+                <span className="text-sm">{uploadProgress}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-gray-400">
+                <Upload className="w-8 h-8 text-gray-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-300">Drop files here or click to upload</p>
+                  <p className="text-xs mt-1">JPEG, PNG, WebP, GIF, MP4, WebM, MOV \u00b7 Max 100 MB each</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {media.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {media.map((m) => (
+                <div key={m.id} className="relative group aspect-square bg-gray-800 rounded-lg overflow-hidden">
+                  {m.type === "image" ? (
+                    <Image src={m.url} alt={m.filename} fill className="object-cover" unoptimized />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-gray-400">
+                      <Film className="w-8 h-8" />
+                      <span className="text-xs truncate px-2 text-center">{m.filename}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gray-950/70 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                    <button onClick={() => handleDeleteMedia(m.id)} className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-full transition">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="absolute top-1.5 left-1.5">
+                    {m.type === "video" ? (
+                      <span className="text-[10px] px-1.5 py-0.5 bg-purple-900/80 text-purple-300 rounded">VIDEO</span>
+                    ) : (
+                      <span className="text-[10px] px-1.5 py-0.5 bg-gray-900/80 text-gray-400 rounded">IMG</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {media.length === 0 && (
+            <p className="text-center text-gray-600 text-sm py-4">No media uploaded yet. Drop files above to get started.</p>
+          )}
+        </div>
+      )}
+
+      {mode === "create" && (
+        <p className="text-gray-500 text-sm text-center">Save the project first, then you can upload photos and videos.</p>
+      )}
+    </div>
+  );
+}
