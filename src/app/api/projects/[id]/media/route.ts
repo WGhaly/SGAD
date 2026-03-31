@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { v4 as uuidv4 } from "uuid";
+import { put } from "@vercel/blob";
 import path from "path";
-import fs from "fs/promises";
 
 type Params = { params: Promise<{ id: string }> };
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024;
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
 const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".webm", ".mov"]);
@@ -16,11 +15,13 @@ function sanitizeFilename(name: string): string {
   return path.basename(name).replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
 }
 
+// ─── POST /api/projects/[id]/media — upload files (admin only) ───────────────
 export async function POST(req: NextRequest, { params }: Params) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId } = await params;
+
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
@@ -33,9 +34,6 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const files = formData.getAll("files") as File[];
   if (!files.length) return NextResponse.json({ error: "No files provided" }, { status: 400 });
-
-  const uploadDir = path.join(process.cwd(), "public", "uploads", projectId);
-  await fs.mkdir(uploadDir, { recursive: true });
 
   const created = [];
 
@@ -58,19 +56,18 @@ export async function POST(req: NextRequest, { params }: Params) {
     }
 
     const safeOriginalName = sanitizeFilename(file.name);
-    const uniqueFilename = `${uuidv4()}${originalExt}`;
-    const filePath = path.join(uploadDir, uniqueFilename);
+    const blobPath = `uploads/${projectId}/${Date.now()}-${safeOriginalName}`;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(filePath, buffer);
-
-    const urlPath = `/uploads/${projectId}/${uniqueFilename}`;
+    const blob = await put(blobPath, file, {
+      access: "public",
+      contentType: mimeType,
+    });
 
     const media = await prisma.media.create({
       data: {
         projectId,
         type: isImage ? "image" : "video",
-        url: urlPath,
+        url: blob.url,
         filename: safeOriginalName,
         sortOrder: 0,
       },
@@ -81,6 +78,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   return NextResponse.json(created, { status: 201 });
 }
 
+// ─── GET /api/projects/[id]/media — list media (public) ──────────────────────
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id: projectId } = await params;
   const media = await prisma.media.findMany({
