@@ -7,21 +7,30 @@ const prisma = new PrismaClient();
 const BCRYPT_ROUNDS = 12;
 
 // ─── Admin Accounts ───────────────────────────────────────────────────────────
+// Passwords must be provided via environment variable — NEVER hardcode them.
+// Usage: SEED_ADMIN_PASSWORD="YourStrongPassword" npx prisma db seed
+const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+if (!seedPassword) {
+  console.error("❌  SEED_ADMIN_PASSWORD env var is required. Example:");
+  console.error('   SEED_ADMIN_PASSWORD="YourStrongPassword" npx prisma db seed');
+  process.exit(1);
+}
+
 const adminUsers = [
   {
     email: "admin@sgad.com",
     name: "Admin",
-    password: "SGAD@Admin2026!#X",
+    password: seedPassword,
   },
   {
     email: "emad@sgad.com",
     name: "Emad Al-Safwa",
-    password: "Em@d.SGAD.2026$Secure",
+    password: seedPassword,
   },
   {
     email: "operations@sgad.com",
     name: "Operations Manager",
-    password: "Mgr#SGAD.2026!Z9",
+    password: seedPassword,
   },
 ];
 

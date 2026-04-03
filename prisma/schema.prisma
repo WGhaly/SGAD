@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,6 +9,8 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ─── Admin Users ─────────────────────────────────────────────────────────────
 
 model User {
   id        String   @id @default(cuid())
@@ -17,25 +22,29 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+// ─── Gallery Projects ─────────────────────────────────────────────────────────
+
 model Project {
   id          String   @id @default(cuid())
   title       String
   description String   @db.Text
-  category    String
+  category    String   // banking | hospitality | restaurants | corporate | residential
   location    String?
   coverImage  String?
-  status      String   @default("published")
+  status      String   @default("published") // published | draft
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   media       Media[]
 }
 
+// ─── Project Media (photos + videos) ─────────────────────────────────────────
+
 model Media {
   id        String   @id @default(cuid())
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  type      String
+  type      String   // image | video
   url       String
   filename  String
   caption   String?

@@ -68,11 +68,9 @@ export const projects: Project[] = [
     duration: "36 months",
     delivery: "Turnkey",
     status: "Completed",
-    image:
-      "https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?auto=format&fit=crop&w=1600&q=80",
+    image: "/portfolio/Egbank.jpeg",
     gallery: [
-      "https://images.unsplash.com/photo-1565402170291-8491f14678db?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=1200&q=80",
+      "/portfolio/Egbank.jpeg",
     ],
     featured: true,
   },
@@ -89,8 +87,7 @@ export const projects: Project[] = [
     duration: "18 months",
     delivery: "Turnkey",
     status: "Completed",
-    image:
-      "https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=1600&q=80",
+    image: "/portfolio/AIB.jpeg",
     featured: true,
   },
   {
@@ -167,8 +164,7 @@ export const projects: Project[] = [
     area: "500 sqm",
     delivery: "Turnkey",
     status: "Completed",
-    image:
-      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1600&q=80",
+    image: "/portfolio/Casacook.jpeg",
     featured: true,
   },
   {
@@ -181,8 +177,7 @@ export const projects: Project[] = [
     location: "Cairo, Egypt",
     delivery: "Turnkey",
     status: "Completed",
-    image:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80",
+    image: "/portfolio/Conrad.jpeg",
     featured: true,
   },
   {
@@ -209,8 +204,7 @@ export const projects: Project[] = [
     location: "Heliopolis, Cairo, Egypt",
     delivery: "Turnkey",
     status: "Completed",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80",
+    image: "/portfolio/MADO.jpeg",
     featured: true,
   },
   {
@@ -253,24 +247,21 @@ export const categories: Record<
     label: "Banking & Finance",
     description:
       "Bespoke branch fitouts and headquarters interiors for Egypt's leading financial institutions.",
-    image:
-      "https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?auto=format&fit=crop&w=1200&q=80",
+    image: "/portfolio/Egbank.jpeg",
     count: 6,
   },
   hospitality: {
     label: "Hotels & Hospitality",
     description:
       "Five-star hotel interiors, resort fitouts and hospitality experiences across Egypt.",
-    image:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+    image: "/portfolio/Conrad.jpeg",
     count: 3,
   },
   restaurants: {
     label: "Restaurants & Retail",
     description:
       "Restaurant concepts, cafés and retail environments that bring brands to life through thoughtful space design.",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
+    image: "/portfolio/MADO.jpeg",
     count: 2,
   },
   corporate: {

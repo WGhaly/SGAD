@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import fs from "fs/promises";
-import path from "path";
+import { del } from "@vercel/blob";
 
 type Params = { params: Promise<{ id: string }> };
 
+// ─── GET /api/projects/[id] ───────────────────────────────────────────────────
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   const project = await prisma.project.findUnique({
@@ -16,9 +16,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
   return NextResponse.json(project);
 }
 
+// ─── PUT /api/projects/[id] — update (admin only) ────────────────────────────
 export async function PUT(req: NextRequest, { params }: Params) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const body = await req.json().catch(() => null);
@@ -43,9 +44,10 @@ export async function PUT(req: NextRequest, { params }: Params) {
   return NextResponse.json(project);
 }
 
+// ─── DELETE /api/projects/[id] — remove (admin only) ─────────────────────────
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
 
@@ -55,14 +57,15 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   });
   if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const uploadBase = path.join(process.cwd(), "public");
+  // Delete associated blob files
   for (const m of project.media) {
-    if (m.url.startsWith("/uploads/")) {
-      const filePath = path.join(uploadBase, m.url);
-      await fs.unlink(filePath).catch(() => {});
+    if (m.url.startsWith("https://")) {
+      await del(m.url).catch(() => {});
     }
   }
 
+  // Cascade deletes media records too (via Prisma schema)
   await prisma.project.delete({ where: { id } });
+
   return NextResponse.json({ success: true });
 }

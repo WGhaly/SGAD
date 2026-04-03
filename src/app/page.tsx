@@ -88,7 +88,7 @@ export default function HomePage() {
             <SectionReveal direction="right" delay={0.15} className="hidden lg:block relative min-h-[540px]">
               <div className="absolute inset-0">
                 <Image
-                  src="https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?auto=format&fit=crop&w=1200&q=80"
+                  src="/portfolio/Egbank.jpeg"
                   alt="SGAD — premium bank interior fitout"
                   fill
                   className="object-cover"

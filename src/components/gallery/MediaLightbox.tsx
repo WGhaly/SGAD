@@ -20,6 +20,7 @@ export default function MediaLightbox({ media }: { media: MediaItem[] }) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
 
+  // All media items are navigable in lightbox
   const lightboxItems = media;
 
   function openAt(i: number) {
@@ -45,7 +46,7 @@ export default function MediaLightbox({ media }: { media: MediaItem[] }) {
 
   return (
     <>
-      {/* Grid */}
+      {/* ── Grid ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {media.map((m, i) => {
           const ytId = m.type === "youtube" ? getYoutubeId(m.url) : null;
@@ -63,7 +64,7 @@ export default function MediaLightbox({ media }: { media: MediaItem[] }) {
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  unoptimized
+                  quality={75}
                 />
               ) : m.type === "youtube" && ytId ? (
                 <>
@@ -73,7 +74,7 @@ export default function MediaLightbox({ media }: { media: MediaItem[] }) {
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    unoptimized
+                    quality={70}
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-gray-950/30 group-hover:bg-gray-950/20 transition">
                     <div className="w-14 h-14 rounded-full bg-red-600/90 flex items-center justify-center shadow-xl">
@@ -82,6 +83,7 @@ export default function MediaLightbox({ media }: { media: MediaItem[] }) {
                   </div>
                 </>
               ) : (
+                /* uploaded video */
                 <div className="absolute inset-0">
                   <video
                     src={m.url}
@@ -106,7 +108,7 @@ export default function MediaLightbox({ media }: { media: MediaItem[] }) {
         })}
       </div>
 
-      {/* Lightbox */}
+      {/* ── Lightbox ──────────────────────────────────────────── */}
       {open && lightboxItems.length > 0 && current && (
         <div
           className="fixed inset-0 z-50 bg-gray-950/95 flex items-center justify-center p-4"
@@ -145,7 +147,8 @@ export default function MediaLightbox({ media }: { media: MediaItem[] }) {
                   alt={current.caption ?? current.filename}
                   fill
                   className="object-contain"
-                  unoptimized
+                  sizes="100vw"
+                  quality={85}
                   priority
                 />
               </div>

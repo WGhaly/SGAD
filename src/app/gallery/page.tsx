@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     "Explore SGAD's portfolio of completed interior fitout projects across banking, hospitality, restaurants, and corporate sectors in Egypt.",
 };
 
+// Revalidate every 60 s so new admin-published projects show up quickly
 export const revalidate = 60;
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -42,14 +43,16 @@ export default async function GalleryPage() {
 
   return (
     <>
-      {/* Hero */}
+      {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="relative bg-[#1A1F35] pt-32 pb-20 overflow-hidden">
+        {/* Background texture */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}
         />
+
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
           <SectionReveal>
             <div className="max-w-2xl">
@@ -69,7 +72,7 @@ export default async function GalleryPage() {
         </div>
       </section>
 
-      {/* Category pills */}
+      {/* ── Category pills ─────────────────────────────────────── */}
       {categories.length > 1 && (
         <section className="bg-[#1A1F35] border-t border-white/5 sticky top-[72px] z-20">
           <div className="max-w-7xl mx-auto px-6 lg:px-10">
@@ -94,7 +97,7 @@ export default async function GalleryPage() {
         </section>
       )}
 
-      {/* Projects Grid */}
+      {/* ── Projects Grid ──────────────────────────────────────── */}
       <section className="bg-[#FAF8F4] py-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           {projects.length === 0 ? (
@@ -110,6 +113,7 @@ export default async function GalleryPage() {
                     className="group block mb-6 break-inside-avoid"
                   >
                     <div className="relative overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-xl transition-shadow duration-300">
+                      {/* Cover image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
                         {project.coverImage ? (
                           <Image
@@ -118,13 +122,15 @@ export default async function GalleryPage() {
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-700"
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            unoptimized
+                            quality={80}
                           />
                         ) : (
                           <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                             <span className="text-gray-400 text-sm">No image</span>
                           </div>
                         )}
+
+                        {/* Category badge */}
                         <div className="absolute top-3 left-3">
                           <span
                             className={`text-[11px] px-2.5 py-1 rounded-full border font-medium backdrop-blur-sm ${
@@ -135,6 +141,8 @@ export default async function GalleryPage() {
                             {CATEGORY_LABELS[project.category] ?? project.category}
                           </span>
                         </div>
+
+                        {/* Media count */}
                         {project._count.media > 0 && (
                           <div className="absolute top-3 right-3">
                             <span className="text-[11px] px-2.5 py-1 rounded-full bg-gray-950/70 text-gray-200 backdrop-blur-sm">
@@ -143,6 +151,8 @@ export default async function GalleryPage() {
                           </div>
                         )}
                       </div>
+
+                      {/* Card body */}
                       <div className="p-5 bg-white">
                         <h3 className="font-serif text-gray-900 font-semibold text-lg leading-snug mb-1.5 group-hover:text-[#1A1F35] transition">
                           {project.title}
@@ -156,6 +166,7 @@ export default async function GalleryPage() {
                         <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
                           {project.description}
                         </p>
+
                         <div className="flex items-center gap-1 mt-4 text-[#1A1F35] text-sm font-medium group-hover:text-[#C9A84C] transition">
                           View Project <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </div>

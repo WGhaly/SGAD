@@ -3,12 +3,12 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import AdminNav from "@/components/admin/AdminNav";
 import Link from "next/link";
-import { PlusCircle, Pencil, Eye } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, Eye } from "lucide-react";
 import DeleteProjectButton from "@/components/admin/DeleteProjectButton";
 
 export default async function AdminProjectsPage() {
   const session = await auth();
-  if (!session) redirect("/admin/login");
+  if (!session?.user?.email) redirect("/admin/login");
 
   const projects = await prisma.project.findMany({
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
@@ -26,12 +26,15 @@ export default async function AdminProjectsPage() {
   return (
     <div className="flex min-h-screen">
       <AdminNav userName={session.user?.name} />
+
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-2xl font-semibold text-white">Projects</h1>
-              <p className="text-gray-400 text-sm mt-1">{projects.length} project{projects.length !== 1 ? "s" : ""}</p>
+              <p className="text-gray-400 text-sm mt-1">
+                {projects.length} project{projects.length !== 1 ? "s" : ""}
+              </p>
             </div>
             <Link
               href="/admin/projects/new"
@@ -46,8 +49,12 @@ export default async function AdminProjectsPage() {
             {projects.length === 0 ? (
               <div className="text-center py-16">
                 <p className="text-gray-500 text-sm mb-4">No projects found.</p>
-                <Link href="/admin/projects/new" className="inline-flex items-center gap-2 px-4 py-2 bg-[#C9A84C] text-gray-950 font-medium rounded-lg text-sm">
-                  <PlusCircle className="w-4 h-4" />Create first project
+                <Link
+                  href="/admin/projects/new"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#C9A84C] text-gray-950 font-medium rounded-lg text-sm"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Create first project
                 </Link>
               </div>
             ) : (
@@ -65,26 +72,47 @@ export default async function AdminProjectsPage() {
                   {(projects as (typeof projects)[number][]).map((p) => (
                     <tr key={p.id} className="hover:bg-gray-800/40 transition">
                       <td className="px-6 py-4">
-                        <div className="font-medium text-white truncate max-w-[240px]">{p.title}</div>
-                        {p.location && <div className="text-gray-500 text-xs mt-0.5 truncate">{p.location}</div>}
+                        <div className="font-medium text-white truncate max-w-[240px]">
+                          {p.title}
+                        </div>
+                        {p.location && (
+                          <div className="text-gray-500 text-xs mt-0.5 truncate">{p.location}</div>
+                        )}
                       </td>
                       <td className="px-4 py-4 hidden sm:table-cell">
-                        <span className="text-gray-400 capitalize">{categoryLabels[p.category] ?? p.category}</span>
+                        <span className="text-gray-400 capitalize">
+                          {categoryLabels[p.category] ?? p.category}
+                        </span>
                       </td>
-                      <td className="px-4 py-4 text-gray-400 hidden md:table-cell">{p._count.media} files</td>
+                      <td className="px-4 py-4 text-gray-400 hidden md:table-cell">
+                        {p._count.media} files
+                      </td>
                       <td className="px-4 py-4 hidden lg:table-cell">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          p.status === "published"
-                            ? "bg-emerald-950/50 text-emerald-400 border border-emerald-800/50"
-                            : "bg-gray-800 text-gray-400 border border-gray-700"
-                        }`}>{p.status}</span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full ${
+                            p.status === "published"
+                              ? "bg-emerald-950/50 text-emerald-400 border border-emerald-800/50"
+                              : "bg-gray-800 text-gray-400 border border-gray-700"
+                          }`}
+                        >
+                          {p.status}
+                        </span>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/gallery/${p.id}`} target="_blank" className="p-1.5 text-gray-500 hover:text-gray-300 transition" title="View">
+                          <Link
+                            href={`/gallery/${p.id}`}
+                            target="_blank"
+                            className="p-1.5 text-gray-500 hover:text-gray-300 transition"
+                            title="View"
+                          >
                             <Eye className="w-4 h-4" />
                           </Link>
-                          <Link href={`/admin/projects/${p.id}`} className="p-1.5 text-gray-500 hover:text-[#C9A84C] transition" title="Edit">
+                          <Link
+                            href={`/admin/projects/${p.id}`}
+                            className="p-1.5 text-gray-500 hover:text-[#C9A84C] transition"
+                            title="Edit"
+                          >
                             <Pencil className="w-4 h-4" />
                           </Link>
                           <DeleteProjectButton id={p.id} title={p.title} />

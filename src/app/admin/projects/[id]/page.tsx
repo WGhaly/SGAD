@@ -10,7 +10,7 @@ type Params = { params: Promise<{ id: string }> };
 
 export default async function EditProjectPage({ params }: Params) {
   const session = await auth();
-  if (!session) redirect("/admin/login");
+  if (!session?.user?.email) redirect("/admin/login");
 
   const { id } = await params;
 
@@ -26,13 +26,22 @@ export default async function EditProjectPage({ params }: Params) {
       <AdminNav userName={session.user?.name} />
       <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-3xl mx-auto">
-          <Link href="/admin/projects" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 mb-6 transition">
+          <Link
+            href="/admin/projects"
+            className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 mb-6 transition"
+          >
             <ChevronLeft className="w-4 h-4" /> Back to Projects
           </Link>
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-semibold text-white truncate max-w-lg">{project.title}</h1>
-            <Link href={`/gallery/${project.id}`} target="_blank" className="text-sm text-[#C9A84C] hover:underline shrink-0 ml-4">
-              View in Gallery \u2192
+            <h1 className="text-2xl font-semibold text-white truncate max-w-lg">
+              {project.title}
+            </h1>
+            <Link
+              href={`/gallery/${project.id}`}
+              target="_blank"
+              className="text-sm text-[#C9A84C] hover:underline shrink-0 ml-4"
+            >
+              View in Gallery →
             </Link>
           </div>
           <ProjectForm

@@ -12,7 +12,7 @@ export default async function AdminLayout({
 
   // Redirect unauthenticated users to login (middleware is primary guard;
   // this layout check is a second layer that catches any edge cases).
-  if (!session && pathname !== "/admin/login") {
+  if (!session?.user?.email && pathname !== "/admin/login") {
     redirect("/admin/login");
   }
 

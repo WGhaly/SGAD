@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { handleSignIn } from "@/app/admin/actions";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { Suspense } from "react";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/admin/dashboard";
 
@@ -22,25 +21,19 @@ function LoginForm() {
     setError("");
     setLoading(true);
 
-    const result = await signIn("credentials", {
-      email: email.trim().toLowerCase(),
-      password,
-      redirect: false,
-    });
+    const result = await handleSignIn(email, password, callbackUrl);
 
+    // If we reach here, login failed (success case redirects and never returns)
     setLoading(false);
-
     if (result?.error) {
-      setError("Invalid email or password. Please try again.");
-    } else {
-      router.push(callbackUrl);
-      router.refresh();
+      setError(result.error);
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 bg-[#C9A84C] rounded flex items-center justify-center">
@@ -51,6 +44,7 @@ function LoginForm() {
           <p className="text-gray-400 text-sm">Sign in to manage your gallery</p>
         </div>
 
+        {/* Card */}
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl">
           {error && (
             <div className="mb-5 flex items-start gap-3 bg-red-950/50 border border-red-800/60 rounded-lg px-4 py-3 text-red-300 text-sm">
@@ -60,8 +54,11 @@ function LoginForm() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Email
+              </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
@@ -76,8 +73,11 @@ function LoginForm() {
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
@@ -105,13 +105,13 @@ function LoginForm() {
               disabled={loading}
               className="w-full py-3 bg-[#C9A84C] hover:bg-[#b8943e] disabled:opacity-60 disabled:cursor-not-allowed text-gray-950 font-semibold rounded-lg transition text-sm tracking-wide"
             >
-              {loading ? "Signing in\u2026" : "Sign In"}
+              {loading ? "Signing in…" : "Sign In"}
             </button>
           </form>
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">
-          SGAD Gallery Admin Panel \u2014 Authorised personnel only
+          SGAD Gallery Admin Panel — Authorised personnel only
         </p>
       </div>
     </div>
