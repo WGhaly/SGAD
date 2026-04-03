@@ -7,14 +7,46 @@ export async function handleSignOut() {
   const cookieStore = await cookies();
 
   // Delete all auth-related cookies (JWT strategy — no server-side session to clean up)
-  const authCookies = [
+  // Must match the original cookie options (path, secure, sameSite) for the browser to clear them
+  const secureCookies = [
     "__Secure-authjs.session-token",
-    "authjs.session-token",
-    "__Host-authjs.csrf-token",
-    "authjs.csrf-token",
   ];
-  for (const name of authCookies) {
-    cookieStore.delete(name);
+  const hostCookies = [
+    "__Host-authjs.csrf-token",
+  ];
+  const plainCookies = [
+    "authjs.session-token",
+    "authjs.csrf-token",
+    "authjs.callback-url",
+  ];
+
+  for (const name of secureCookies) {
+    cookieStore.set(name, "", {
+      maxAge: 0,
+      path: "/",
+      secure: true,
+      httpOnly: true,
+      sameSite: "lax",
+    });
+  }
+
+  for (const name of hostCookies) {
+    cookieStore.set(name, "", {
+      maxAge: 0,
+      path: "/",
+      secure: true,
+      httpOnly: true,
+      sameSite: "lax",
+    });
+  }
+
+  for (const name of plainCookies) {
+    cookieStore.set(name, "", {
+      maxAge: 0,
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+    });
   }
 
   redirect("/admin/login");
