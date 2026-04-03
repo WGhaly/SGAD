@@ -1,11 +1,20 @@
 "use server";
 
-import { signIn } from "@/auth";
-import { AuthError } from "next-auth";
+import { encode } from "@auth/core/jwt";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/db";
 
-// ─── Server-side login (bypasses broken NextAuth API routes) ─────────────────
+const SESSION_COOKIE =
+  process.env.NODE_ENV === "production"
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+
+const AUTH_SECRET = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
+const MAX_AGE = 8 * 60 * 60; // 8 hours
+
+// ─── Server-side login (fully manual — bypasses broken NextAuth API routes) ──
 export async function handleSignIn(
   email: string,
   password: string,
@@ -14,18 +23,48 @@ export async function handleSignIn(
   // Prevent open-redirect: only allow paths starting with /admin/
   const safeRedirect = redirectTo.startsWith("/admin/") ? redirectTo : "/admin/dashboard";
 
-  try {
-    await signIn("credentials", {
-      email: email.trim().toLowerCase(),
-      password,
-      redirectTo: safeRedirect,
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return { error: "Invalid email or password. Please try again." };
-    }
-    throw error; // Re-throw redirect (NEXT_REDIRECT) and other non-auth errors
+  const trimmedEmail = email.trim().toLowerCase();
+
+  // 1. Look up the user
+  const user = await prisma.user.findUnique({ where: { email: trimmedEmail } });
+  if (!user) {
+    return { error: "Invalid email or password. Please try again." };
   }
+
+  // 2. Verify password
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return { error: "Invalid email or password. Please try again." };
+  }
+
+  // 3. Build a JWT token compatible with NextAuth's expected shape
+  const token = await encode({
+    secret: AUTH_SECRET,
+    salt: SESSION_COOKIE,
+    token: {
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      id: user.id,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + MAX_AGE,
+    },
+    maxAge: MAX_AGE,
+  });
+
+  // 4. Set the session cookie
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: MAX_AGE,
+  });
+
+  // 5. Redirect to the dashboard
+  redirect(safeRedirect);
 }
 
 // ─── Server-side logout ─────────────────────────────────────────────────────
