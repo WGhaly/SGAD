@@ -3,7 +3,8 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Upload, X, Loader2, Film, PlayCircle, Pencil, Check } from "lucide-react";
+import { Upload, X, Loader2, Film, PlayCircle, Pencil, Check, CheckCircle2, AlertCircle } from "lucide-react";
+import { upload } from "@vercel/blob/client";
 
 interface MediaItem {
   id: string;
@@ -54,10 +55,12 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState("");
+  const [uploadFiles, setUploadFiles] = useState<{ name: string; progress: number; status: "pending" | "uploading" | "done" | "error"; error?: string }[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [coverProgress, setCoverProgress] = useState(0);
 
   // YouTube
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -67,6 +70,41 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
   // Caption editing
   const [editingCaption, setEditingCaption] = useState<{ id: string; value: string } | null>(null);
   const [savingCaption, setSavingCaption] = useState(false);
+
+  async function handleCoverUpload(file: File) {
+    if (!file) return;
+    const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+    if (!ALLOWED.has(file.type)) {
+      setError("Cover image must be JPEG, PNG, WebP, or GIF.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError(`Cover image too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max 10 MB.`);
+      return;
+    }
+    setCoverUploading(true);
+    setCoverProgress(0);
+    setError("");
+    try {
+      const blob = await upload(
+        `covers/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`,
+        file,
+        {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+          multipart: file.size > 5 * 1024 * 1024,
+          onUploadProgress: ({ percentage }) => setCoverProgress(Math.round(percentage)),
+        }
+      );
+      setCoverImage(blob.url);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Cover upload failed";
+      setError(msg);
+    } finally {
+      setCoverUploading(false);
+      setCoverProgress(0);
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -103,31 +141,86 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
   }
 
   async function handleFileUpload(files: FileList | null) {
-    if (!files || !projectId) return;
+    if (!files || !files.length || !projectId) return;
     setUploading(true);
     setError("");
 
-    const formData = new FormData();
-    Array.from(files).forEach((f) => formData.append("files", f));
+    const fileArr = Array.from(files);
+    type UploadTracker = { name: string; progress: number; status: "pending" | "uploading" | "done" | "error"; error?: string };
+    const tracker: UploadTracker[] = fileArr.map((f) => ({ name: f.name, progress: 0, status: "pending" as const }));
+    setUploadFiles([...tracker]);
 
-    setUploadProgress(`Uploading ${files.length} file(s)…`);
+    const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
-    const res = await fetch(`/api/projects/${projectId}/media`, {
-      method: "POST",
-      body: formData,
-    });
+    for (let i = 0; i < fileArr.length; i++) {
+      const file = fileArr[i];
+      tracker[i] = { ...tracker[i], status: "uploading", progress: 0 };
+      setUploadFiles([...tracker]);
 
-    setUploading(false);
-    setUploadProgress("");
+      try {
+        // Validate file size client-side (100 MB limit)
+        if (file.size > 100 * 1024 * 1024) {
+          throw new Error(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 100 MB.`);
+        }
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      setError(err.error ?? "Upload failed");
-      return;
+        // 1. Upload directly to Vercel Blob (bypasses 4.5MB serverless limit)
+        let blob;
+        try {
+          blob = await upload(
+            `uploads/${projectId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`,
+            file,
+            {
+              access: "public",
+              handleUploadUrl: "/api/upload",
+              multipart: file.size > 5 * 1024 * 1024,
+              onUploadProgress: ({ percentage }) => {
+                tracker[i] = { ...tracker[i], progress: Math.round(percentage) };
+                setUploadFiles([...tracker]);
+              },
+            }
+          );
+        } catch (uploadErr) {
+          const raw = uploadErr instanceof Error ? uploadErr.message : String(uploadErr);
+          if (raw.includes("Unauthorized") || raw.includes("401")) {
+            throw new Error("Session expired. Please refresh and log in again.");
+          }
+          if (raw.includes("BLOB_READ_WRITE_TOKEN") || raw.includes("token")) {
+            throw new Error("Storage is not configured. Contact an administrator.");
+          }
+          throw new Error(`Upload failed: ${raw}`);
+        }
+
+        // 2. Register in database
+        const type = IMAGE_TYPES.has(file.type) ? "image" : "video";
+        const res = await fetch(`/api/projects/${projectId}/media`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: blob.url, filename: file.name, type }),
+        });
+
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error ?? `Failed to save media (${res.status})`);
+        }
+
+        const newMedia: MediaItem[] = await res.json();
+        setMedia((prev) => [...prev, ...newMedia]);
+        tracker[i] = { ...tracker[i], status: "done", progress: 100 };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Upload failed";
+        tracker[i] = { ...tracker[i], status: "error", progress: 0, error: msg };
+        setError(msg);
+      }
+      setUploadFiles([...tracker]);
     }
 
-    const newMedia: MediaItem[] = await res.json();
-    setMedia((prev) => [...prev, ...newMedia]);
+    setUploading(false);
+
+    // Clear completed files after a delay
+    const hasErrors = tracker.some((t) => t.status === "error");
+    if (!hasErrors) {
+      setTimeout(() => setUploadFiles([]), 3000);
+    }
   }
 
   async function handleAddYoutube() {
@@ -282,24 +375,57 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1.5">Cover Image URL</label>
-          <input
-            type="text"
-            value={coverImage}
-            onChange={(e) => setCoverImage(e.target.value)}
-            className={inputClass}
-            placeholder="/portfolio/Egbank.jpeg  or  /uploads/project-id/image.jpg"
-          />
-          {coverImage && (
-            <div className="mt-2 rounded-lg overflow-hidden h-32 w-full relative bg-gray-800">
+          <label className="block text-sm text-gray-400 mb-1.5">Cover Image</label>
+          {coverImage ? (
+            <div className="relative rounded-lg overflow-hidden h-40 w-full bg-gray-800">
               <Image
                 src={coverImage}
                 alt="Cover preview"
                 fill
                 className="object-cover"
-                unoptimized
+                sizes="(max-width: 768px) 100vw, 50vw"
+                quality={75}
               />
+              <button
+                type="button"
+                onClick={() => setCoverImage("")}
+                className="absolute top-2 right-2 p-1.5 bg-gray-950/70 hover:bg-red-600 text-white rounded-full transition"
+                title="Remove cover"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
+          ) : (
+            <label className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
+              coverUploading ? "border-[#C9A84C] bg-[#C9A84C]/5" : "border-gray-700 hover:border-gray-500"
+            }`}>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleCoverUpload(f);
+                  e.target.value = "";
+                }}
+                disabled={coverUploading}
+              />
+              {coverUploading ? (
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#C9A84C]" />
+                  <span className="text-xs text-gray-400">Uploading… {coverProgress}%</span>
+                  <div className="w-48 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#C9A84C] rounded-full transition-all duration-300" style={{ width: `${coverProgress}%` }} />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-1 text-gray-400">
+                  <Upload className="w-6 h-6 text-gray-600" />
+                  <p className="text-sm font-medium text-gray-300">Click to upload cover image</p>
+                  <p className="text-xs">JPEG, PNG, WebP, GIF · Max 10 MB</p>
+                </div>
+              )}
+            </label>
           )}
         </div>
 
@@ -352,7 +478,7 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
               {uploading ? (
                 <div className="flex flex-col items-center gap-2 text-gray-400">
                   <Loader2 className="w-8 h-8 animate-spin text-[#C9A84C]" />
-                  <span className="text-sm">{uploadProgress}</span>
+                  <span className="text-sm">Uploading… you can still drop more files</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-gray-400">
@@ -364,6 +490,48 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
                 </div>
               )}
             </div>
+
+            {/* Per-file upload progress */}
+            {uploadFiles.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {uploadFiles.map((f, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-gray-800/60 rounded-lg px-3 py-2">
+                    {f.status === "done" ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    ) : f.status === "error" ? (
+                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                    ) : f.status === "uploading" ? (
+                      <Loader2 className="w-4 h-4 text-[#C9A84C] animate-spin shrink-0" />
+                    ) : (
+                      <div className="w-4 h-4 rounded-full border border-gray-600 shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-300 truncate">{f.name}</p>
+                      {f.status === "uploading" && (
+                        <div className="mt-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#C9A84C] rounded-full transition-all duration-300"
+                            style={{ width: `${f.progress}%` }}
+                          />
+                        </div>
+                      )}
+                      {f.status === "error" && (
+                        <p className="text-[10px] text-red-400 mt-0.5">{f.error}</p>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-gray-500 shrink-0 tabular-nums">
+                      {f.status === "done"
+                        ? "Done"
+                        : f.status === "error"
+                          ? "Failed"
+                          : f.status === "uploading"
+                            ? `${f.progress}%`
+                            : "Queued"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* YouTube Embed */}
@@ -415,7 +583,7 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
                     {/* Thumbnail */}
                     <div className="relative aspect-square">
                       {m.type === "image" ? (
-                        <Image src={m.url} alt={m.filename} fill className="object-cover" unoptimized />
+                        <Image src={m.url} alt={m.filename} fill className="object-cover" sizes="200px" quality={70} />
                       ) : m.type === "youtube" && ytId ? (
                         <>
                           <Image
@@ -423,7 +591,8 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
                             alt={m.caption ?? m.filename}
                             fill
                             className="object-cover"
-                            unoptimized
+                            sizes="200px"
+                            quality={70}
                           />
                           <div className="absolute inset-0 flex items-center justify-center bg-gray-950/30">
                             <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">

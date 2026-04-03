@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { handleSignOut } from "@/app/admin/actions";
 import {
   LayoutDashboard,
   Images,
@@ -70,7 +70,7 @@ export default function AdminNav({ userName }: { userName?: string | null }) {
           View Gallery
         </Link>
         <button
-          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          onClick={() => handleSignOut()}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-red-950/40 hover:text-red-400 transition"
         >
           <LogOut className="w-4 h-4 shrink-0" />
