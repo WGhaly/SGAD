@@ -1,5 +1,4 @@
-import { auth } from "@/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // ─── Simple in-memory rate limiter for auth endpoints ─────────────────────────
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -17,7 +16,13 @@ function isRateLimited(ip: string): boolean {
   return entry.count > MAX_ATTEMPTS;
 }
 
-export default auth((req) => {
+// Cookie name matches what's configured in auth.ts
+const SESSION_COOKIE =
+  process.env.NODE_ENV === "production"
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // ── Rate limit login POST requests ─────────────────────────────────────────
@@ -36,24 +41,25 @@ export default auth((req) => {
 
   const isAdminRoute = pathname.startsWith("/admin");
   const isLoginPage = pathname === "/admin/login";
-  // Must check for actual user data — auth() returns non-null empty session
-  // on NextAuth v5 beta.30 + Next.js 16 even when no JWT cookie is present
-  const isAuthenticated = !!req.auth?.user?.email;
+  // Check for the JWT session cookie directly — the auth() wrapper from
+  // NextAuth v5 beta.30 is unreliable on Next.js 16 (returns non-null empty
+  // sessions even with no cookie, and causes build failures).
+  const hasSessionCookie = !!req.cookies.get(SESSION_COOKIE)?.value;
 
-  if (isAdminRoute && !isLoginPage && !isAuthenticated) {
+  if (isAdminRoute && !isLoginPage && !hasSessionCookie) {
     const loginUrl = new URL("/admin/login", req.nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoginPage && isAuthenticated) {
+  if (isLoginPage && hasSessionCookie) {
     return NextResponse.redirect(new URL("/admin/dashboard", req.nextUrl.origin));
   }
 
   const response = NextResponse.next();
   response.headers.set("x-pathname", pathname);
   return response;
-});
+}
 
 export const config = {
   matcher: ["/admin/:path*", "/api/auth/:path*", "/((?!_next|favicon|uploads|portfolio).*)"],
