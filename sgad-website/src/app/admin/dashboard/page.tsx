@@ -7,7 +7,7 @@ import { PlusCircle, Images, ImageIcon, Film } from "lucide-react";
 
 export default async function AdminDashboardPage() {
   const session = await auth();
-  if (!session) redirect("/admin/login");
+  if (!session?.user?.email) redirect("/admin/login");
 
   const [projectCount, mediaCount] = await Promise.all([
     prisma.project.count(),
