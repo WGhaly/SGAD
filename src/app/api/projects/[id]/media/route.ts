@@ -45,8 +45,7 @@ function extractYoutubeId(raw: string): string | null {
   return null;
 }
 
-// ─── POST /api/projects/[id]/media — upload files or add YouTube embed ─────
-entryPoint
+// POST /api/projects/[id]/media - upload files or add YouTube embed
 export async function POST(req: NextRequest, { params }: Params) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -58,7 +57,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const contentType = req.headers.get("content-type") ?? "";
 
-  // ── YouTube embed (JSON body) ──────────────────────────────────────────────
+  // YouTube embed (JSON body)
   if (contentType.includes("application/json")) {
     const body = await req.json().catch(() => null);
     if (!body?.youtubeUrl) {
@@ -87,7 +86,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json([media], { status: 201 });
   }
 
-  // ── File upload (multipart) ────────────────────────────────────────────
+  // File upload (multipart)
   let formData: FormData;
   try {
     formData = await req.formData();
@@ -141,8 +140,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   return NextResponse.json(created, { status: 201 });
 }
 
-// ─── GET /api/projects/[id]/media — list media (public) ────────────────────
-entryPoint
+// GET /api/projects/[id]/media - list media (public)
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id: projectId } = await params;
   const media = await prisma.media.findMany({
