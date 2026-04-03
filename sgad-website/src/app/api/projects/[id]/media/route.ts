@@ -20,13 +20,13 @@ function extractYoutubeId(raw: string): string | null {
 
   if (hostname === "youtu.be") {
     const id = url.pathname.slice(1).split("?")[0];
-    return /^[\w-]{11}$/.test(id) ? id : null;
+    return /^[\\w-]{11}$/.test(id) ? id : null;
   }
 
   const v = url.searchParams.get("v");
-  if (v && /^[\w-]{11}$/.test(v)) return v;
+  if (v && /^[\\w-]{11}$/.test(v)) return v;
 
-  const match = url.pathname.match(/\/(embed|shorts|v)\/([\w-]{11})/);
+  const match = url.pathname.match(/\\/(embed|shorts|v)\/([\\w-]{11})/);
   if (match) return match[2];
 
   return null;
@@ -44,13 +44,13 @@ function isTrustedBlobUrl(raw: string): boolean {
   }
 }
 
-// ─── POST /api/projects/[id]/media ───────────────────────────────────────────
+// ─── POST /api/projects/[id]/media ───────────────────────────────────────
 // Accepts JSON body for:
 //   1. YouTube embed: { youtubeUrl, caption? }
 //   2. Blob registration: { url, filename, type, caption? }
 export async function POST(req: NextRequest, { params }: Params) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id: projectId } = await params;
 
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
 
-  // ── YouTube embed ──────────────────────────────────────────────────────────
+  // ── YouTube embed ────────────────────────────────────────────────────────
   if (body.youtubeUrl) {
     const videoId = extractYoutubeId(String(body.youtubeUrl));
     if (!videoId) {
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json([media], { status: 201 });
   }
 
-  // ── Blob registration (client-side upload completed) ───────────────────────
+  // ── Blob registration (client-side upload completed) ───────────────────
   if (body.url && body.filename) {
     const blobUrl = String(body.url);
     if (!isTrustedBlobUrl(blobUrl)) {
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
 }
 
-// ─── GET /api/projects/[id]/media ────────────────────────────────────────────
+// ─── GET /api/projects/[id]/media ────────────────────────────────────────
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id: projectId } = await params;
   const media = await prisma.media.findMany({
