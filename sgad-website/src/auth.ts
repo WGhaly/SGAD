@@ -28,7 +28,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 8 * 60 * 60,          // 8 hours — admin must re-login after this
+    updateAge: 60 * 60,            // refresh the token every hour
+  },
   cookies: {
     sessionToken: {
       name: process.env.NODE_ENV === "production"

@@ -121,20 +121,37 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
       setUploadFiles([...tracker]);
 
       try {
+        // Validate file size client-side (100 MB limit)
+        if (file.size > 100 * 1024 * 1024) {
+          throw new Error(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 100 MB.`);
+        }
+
         // 1. Upload directly to Vercel Blob (bypasses 4.5MB serverless limit)
-        const blob = await upload(
-          `uploads/${projectId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`,
-          file,
-          {
-            access: "public",
-            handleUploadUrl: "/api/upload",
-            multipart: file.size > 5 * 1024 * 1024,
-            onUploadProgress: ({ percentage }) => {
-              tracker[i] = { ...tracker[i], progress: Math.round(percentage) };
-              setUploadFiles([...tracker]);
-            },
+        let blob;
+        try {
+          blob = await upload(
+            `uploads/${projectId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`,
+            file,
+            {
+              access: "public",
+              handleUploadUrl: "/api/upload",
+              multipart: file.size > 5 * 1024 * 1024,
+              onUploadProgress: ({ percentage }) => {
+                tracker[i] = { ...tracker[i], progress: Math.round(percentage) };
+                setUploadFiles([...tracker]);
+              },
+            }
+          );
+        } catch (uploadErr) {
+          const raw = uploadErr instanceof Error ? uploadErr.message : String(uploadErr);
+          if (raw.includes("Unauthorized") || raw.includes("401")) {
+            throw new Error("Session expired. Please refresh and log in again.");
           }
-        );
+          if (raw.includes("BLOB_READ_WRITE_TOKEN") || raw.includes("token")) {
+            throw new Error("Storage is not configured. Contact an administrator.");
+          }
+          throw new Error(`Upload failed: ${raw}`);
+        }
 
         // 2. Register in database
         const type = IMAGE_TYPES.has(file.type) ? "image" : "video";
@@ -144,7 +161,10 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
           body: JSON.stringify({ url: blob.url, filename: file.name, type }),
         });
 
-        if (!res.ok) throw new Error("Failed to register media");
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error ?? `Failed to save media (${res.status})`);
+        }
 
         const newMedia: MediaItem[] = await res.json();
         setMedia((prev) => [...prev, ...newMedia]);
@@ -152,6 +172,7 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Upload failed";
         tracker[i] = { ...tracker[i], status: "error", progress: 0, error: msg };
+        setError(msg);
       }
       setUploadFiles([...tracker]);
     }
