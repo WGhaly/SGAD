@@ -36,7 +36,9 @@ export default auth((req) => {
 
   const isAdminRoute = pathname.startsWith("/admin");
   const isLoginPage = pathname === "/admin/login";
-  const isAuthenticated = !!req.auth;
+  // Must check for actual user data — auth() returns non-null empty session
+  // on NextAuth v5 beta.30 + Next.js 16 even when no JWT cookie is present
+  const isAuthenticated = !!req.auth?.user?.email;
 
   if (isAdminRoute && !isLoginPage && !isAuthenticated) {
     const loginUrl = new URL("/admin/login", req.nextUrl.origin);

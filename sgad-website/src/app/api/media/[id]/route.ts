@@ -8,7 +8,7 @@ type Params = { params: Promise<{ id: string }> };
 // ─── DELETE /api/media/[id] — remove media item (admin only) ─────────────────
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
 
@@ -28,7 +28,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 // ─── PATCH /api/media/[id] — update caption / sort order (admin only) ────────
 export async function PATCH(req: NextRequest, { params }: Params) {
   const session = await auth();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
   const body = await req.json().catch(() => null);

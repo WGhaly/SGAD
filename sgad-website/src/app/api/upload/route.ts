@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       request: req,
       onBeforeGenerateToken: async () => {
         const session = await auth();
-        if (!session) throw new Error("Unauthorized");
+        if (!session?.user?.email) throw new Error("Unauthorized");
 
         return {
           allowedContentTypes: ALLOWED_TYPES,
