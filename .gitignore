@@ -46,3 +46,4 @@ package-lock.json
 # local dev scripts
 check-auth.mjs
 docker-compose.yml
+.env*.local

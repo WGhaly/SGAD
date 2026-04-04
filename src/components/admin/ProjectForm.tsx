@@ -61,6 +61,7 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
   const [success, setSuccess] = useState("");
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverProgress, setCoverProgress] = useState(0);
+  const [coverDragOver, setCoverDragOver] = useState(false);
 
   // YouTube
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -396,9 +397,18 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
               </button>
             </div>
           ) : (
-            <label className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
-              coverUploading ? "border-[#C9A84C] bg-[#C9A84C]/5" : "border-gray-700 hover:border-gray-500"
-            }`}>
+            <label
+              className={`block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
+                coverUploading ? "border-[#C9A84C] bg-[#C9A84C]/5" : coverDragOver ? "border-[#C9A84C] bg-[#C9A84C]/10" : "border-gray-700 hover:border-gray-500"
+              }`}
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setCoverDragOver(true); }}
+              onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setCoverDragOver(false); }}
+              onDrop={(e) => {
+                e.preventDefault(); e.stopPropagation(); setCoverDragOver(false);
+                const f = e.dataTransfer.files?.[0];
+                if (f) handleCoverUpload(f);
+              }}
+            >
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
@@ -421,7 +431,7 @@ export default function ProjectForm({ mode, projectId, initialData }: ProjectFor
               ) : (
                 <div className="flex flex-col items-center gap-1 text-gray-400">
                   <Upload className="w-6 h-6 text-gray-600" />
-                  <p className="text-sm font-medium text-gray-300">Click to upload cover image</p>
+                  <p className="text-sm font-medium text-gray-300">Click or drag to upload cover image</p>
                   <p className="text-xs">JPEG, PNG, WebP, GIF · Max 10 MB</p>
                 </div>
               )}
