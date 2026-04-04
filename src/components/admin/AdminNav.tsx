@@ -10,12 +10,14 @@ import {
   PlusCircle,
   LogOut,
   ExternalLink,
+  Users,
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/projects", label: "Projects", icon: Images },
   { href: "/admin/projects/new", label: "New Project", icon: PlusCircle },
+  { href: "/admin/admins", label: "Admin Users", icon: Users },
 ];
 
 export default function AdminNav({ userName }: { userName?: string | null }) {

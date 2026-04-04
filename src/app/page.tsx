@@ -4,7 +4,6 @@ import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import HeroSlider from "@/components/home/HeroSlider";
 import ClientsSection from "@/components/home/ClientsSection";
-import TestimonialsSection from "@/components/home/TestimonialsSection";
 import SectionReveal from "@/components/SectionReveal";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import { projects, categories, services, stats } from "@/lib/data";
@@ -256,10 +255,7 @@ export default function HomePage() {
         <ClientsSection />
       </section>
 
-      {/* ─── 7. TESTIMONIALS ─────────────────────────────────── */}
-      <TestimonialsSection />
-
-      {/* ─── 8. CTA STRIP ────────────────────────────────────── */}
+      {/* ─── 7. CTA STRIP ────────────────────────────────────── */}
       <section className="bg-[#C9A96E] py-20 lg:py-28">
         <SectionReveal className="max-w-3xl mx-auto px-6 lg:px-10 text-center">
           <p className="text-[9px] tracking-[0.3em] uppercase font-semibold text-[#0A0A0C]/40 mb-4">

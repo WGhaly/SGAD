@@ -13,11 +13,6 @@ const SocialIcons = {
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
     </svg>
   ),
-  Linkedin: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" />
-    </svg>
-  ),
 };
 
 const quickLinks = [
@@ -59,9 +54,8 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               {[
-                { Icon: SocialIcons.Facebook, href: "#", label: "Facebook" },
-                { Icon: SocialIcons.Instagram, href: "#", label: "Instagram" },
-                { Icon: SocialIcons.Linkedin, href: "#", label: "LinkedIn" },
+                { Icon: SocialIcons.Facebook, href: "https://www.facebook.com/profile.php?id=61577441296939", label: "Facebook" },
+                { Icon: SocialIcons.Instagram, href: "https://www.instagram.com/sgad.eg/", label: "Instagram" },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -122,27 +116,22 @@ export default function Footer() {
               <li className="flex gap-3">
                 <MapPin size={15} className="text-[#C9A96E] mt-0.5 shrink-0" />
                 <span className="text-sm text-white/50 leading-relaxed">
-                  23 Samir Moukhtar Street, Ard Al Golf, Heliopolis, Cairo, Egypt
+                  23rd Samir Moukhtar St., Ard Al Golf, Heliopolis, Cairo, Egypt
                 </span>
               </li>
               <li className="flex gap-3">
                 <Phone size={15} className="text-[#C9A96E] mt-0.5 shrink-0" />
-                <div className="text-sm text-white/50 space-y-1">
-                  <a href="tel:+201050057511" className="block hover:text-white transition-colors">
-                    +20 105 005 7511
-                  </a>
-                  <a href="tel:+201050057544" className="block hover:text-white transition-colors">
-                    +20 105 005 7544
-                  </a>
-                </div>
+                <a href="tel:+201050057511" className="text-sm text-white/50 hover:text-white transition-colors">
+                  010 50057511
+                </a>
               </li>
               <li className="flex gap-3">
                 <Mail size={15} className="text-[#C9A96E] mt-0.5 shrink-0" />
                 <a
-                  href="mailto:info@sgad.com.eg"
+                  href="mailto:info@alsafwagroup.info"
                   className="text-sm text-white/50 hover:text-white transition-colors"
                 >
-                  info@sgad.com.eg
+                  info@alsafwagroup.info
                 </a>
               </li>
             </ul>
