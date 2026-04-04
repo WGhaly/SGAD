@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { handleSignIn } from "@/app/admin/actions";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { Suspense } from "react";
 
 function LoginForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/admin/dashboard";
 
   const [email, setEmail] = useState("");
@@ -21,12 +22,19 @@ function LoginForm() {
     setError("");
     setLoading(true);
 
-    const result = await handleSignIn(email, password, callbackUrl);
+    try {
+      const result = await handleSignIn(email, password, callbackUrl);
 
-    // If we reach here, login failed (success case redirects and never returns)
-    setLoading(false);
-    if (result?.error) {
-      setError(result.error);
+      if (result?.error) {
+        setLoading(false);
+        setError(result.error);
+      } else if (result?.success) {
+        // Cookie is set — navigate client-side
+        router.push(result.redirectUrl ?? "/admin/dashboard");
+      }
+    } catch {
+      setLoading(false);
+      setError("An unexpected error occurred. Please try again.");
     }
   }
 
