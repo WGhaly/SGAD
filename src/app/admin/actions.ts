@@ -67,9 +67,8 @@ export async function handleSignIn(
     // 5. Return success — client handles redirect
     return { success: true, redirectUrl: safeRedirect };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[handleSignIn] Error:", msg);
-    return { error: `Login error: ${msg}` };
+    console.error("[handleSignIn] Error:", err);
+    return { error: "An unexpected error occurred. Please try again." };
   }
 }
 
