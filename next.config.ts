@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
       { protocol: "https", hostname: "img.youtube.com" },
     ],
-    localPatterns: [{ pathname: "/portfolio/**" }],
+    localPatterns: [
+      { pathname: "/portfolio/**" },
+      { pathname: "/sgad-logo.png" },
+      { pathname: "/favicon.png" },
+    ],
   },
   async headers() {
     return [
