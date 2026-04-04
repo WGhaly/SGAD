@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { handleSignOut } from "@/app/admin/actions";
 import {
@@ -24,11 +25,15 @@ export default function AdminNav({ userName }: { userName?: string | null }) {
     <aside className="w-64 shrink-0 bg-gray-900 border-r border-gray-800 flex flex-col min-h-screen">
       {/* Brand */}
       <div className="px-6 py-5 border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#C9A84C] rounded flex items-center justify-center">
-            <span className="text-gray-950 font-bold text-xs">S</span>
-          </div>
-          <span className="text-white font-semibold tracking-tight">SGAD Admin</span>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/sgad-logo.png"
+            alt="SGAD"
+            width={120}
+            height={40}
+            className="h-8 w-auto brightness-0 invert"
+          />
+          <span className="text-gray-400 text-xs font-medium">Admin</span>
         </div>
         {userName && (
           <p className="text-gray-500 text-xs mt-1.5 truncate">

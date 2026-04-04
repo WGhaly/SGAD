@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { handleSignIn } from "@/app/admin/actions";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
@@ -43,11 +44,16 @@ function LoginForm() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-[#C9A84C] rounded flex items-center justify-center">
-              <span className="text-gray-950 font-bold text-sm">S</span>
-            </div>
-            <span className="text-white font-semibold text-xl tracking-tight">SGAD Admin</span>
+          <div className="inline-flex flex-col items-center gap-3 mb-4">
+            <Image
+              src="/sgad-logo.png"
+              alt="SGAD"
+              width={180}
+              height={60}
+              className="h-12 w-auto brightness-0 invert"
+              priority
+            />
+            <span className="text-gray-400 text-xs font-medium tracking-widest uppercase">Admin Panel</span>
           </div>
           <p className="text-gray-400 text-sm">Sign in to manage your gallery</p>
         </div>
