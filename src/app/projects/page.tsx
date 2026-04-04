@@ -9,7 +9,7 @@ import type { ProjectCategory } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Projects",
   description:
-    "Explore SGAD's portfolio of 302+ interior fitout projects across banking, hospitality, restaurants and corporate sectors across Egypt.",
+    "Explore SGAD's portfolio of interior fitout projects across banking, hospitality, restaurants and corporate sectors across Egypt.",
 };
 
 const categoryOrder: ProjectCategory[] = ["banking", "hospitality", "restaurants", "corporate"];
@@ -42,7 +42,7 @@ export default function ProjectsPage() {
       <section className="section-py bg-[#FAF8F4]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <SectionReveal className="max-w-2xl">
-            <p className="eyebrow mb-4">302+ Completed Projects</p>
+            <p className="eyebrow mb-4">Completed Projects</p>
             <h2 className="font-serif text-3xl lg:text-4xl font-bold text-[#1A1F35] gold-line mb-6">
               Spaces Built for Excellence
             </h2>
@@ -75,9 +75,6 @@ export default function ProjectsPage() {
                       <div className="absolute inset-0 bg-[#0A0A0C]/50 group-hover:bg-[#0A0A0C]/30 transition-colors" />
                       <div className="absolute inset-0 flex items-end p-8">
                         <div>
-                          <span className="font-serif text-xs tracking-[0.2em] uppercase text-[#C9A96E] font-medium">
-                            {cat.count} Projects
-                          </span>
                           <h3 className="font-serif text-2xl lg:text-3xl font-bold text-white mt-1">
                             {cat.label}
                           </h3>

@@ -36,7 +36,6 @@ export default async function ProjectPage({ params }: PageProps) {
 
   const meta = [
     project.location && { icon: MapPin, label: "Location", value: project.location },
-    project.value && { icon: Layers, label: "Project Value", value: project.value },
     project.area && { icon: Ruler, label: "Total Area", value: project.area },
     project.duration && { icon: Clock, label: "Duration", value: project.duration },
     project.delivery && { icon: Layers, label: "Delivery", value: project.delivery },

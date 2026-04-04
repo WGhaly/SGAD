@@ -3,13 +3,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import SectionReveal from "@/components/SectionReveal";
-import AnimatedCounter from "@/components/AnimatedCounter";
-import { stats } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Learn about Al Safwa Group for Architecture and Decoration (SGAD) — Egypt\'s trusted turnkey interior fitout contractor delivering 625M+ EGP in projects across banking, hospitality and commercial sectors.",
+    "Learn about Al Safwa Group for Architecture and Decoration (SGAD) — Egypt's trusted turnkey interior fitout contractor delivering projects across banking, hospitality and commercial sectors.",
 };
 
 const values = [
@@ -29,7 +27,7 @@ const values = [
     icon: "03",
     title: "Client Partnership",
     description:
-      "We treat every client relationship as a long-term partnership, not a transaction. 30%+ of our work comes from repeat clients.",
+      "We treat every client relationship as a long-term partnership, not a transaction.",
   },
   {
     icon: "04",
@@ -96,7 +94,7 @@ export default function AboutPage() {
                 <p>
                   Al Safwa Group for Architecture and Decoration (SGAD) has grown
                   into one of Egypt&apos;s most trusted turnkey interior
-                  contractors — delivering confirmed projects valued at over 625M EGP for the nation&apos;s
+                  contractors — delivering confirmed projects for the nation&apos;s
                   most prominent financial institutions, hotel groups and hospitality brands.
                 </p>
                 <p>
@@ -130,9 +128,9 @@ export default function AboutPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-[#1A1F35] p-6">
-                  <p className="font-serif text-3xl font-bold text-[#C9A96E]">351M</p>
+                  <p className="font-serif text-3xl font-bold text-[#C9A96E]">Turnkey</p>
                   <p className="text-[10px] tracking-[0.15em] uppercase text-white/40 font-medium mt-1">
-                    EGP — Largest Single Project
+                    Full-Service Delivery
                   </p>
                 </div>
                 <div className="bg-[#F0EDE7] p-6">
@@ -199,24 +197,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="section-py bg-[#0A0A0C]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <SectionReveal className="text-center mb-16">
-            <p className="eyebrow mb-3">By the Numbers</p>
-            <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white">
-              Measured in Every Metric That Matters
-            </h2>
-          </SectionReveal>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
-            {stats.map((stat, i) => (
-              <SectionReveal key={stat.label} delay={i * 0.1} direction="none">
-                <AnimatedCounter value={stat.value} suffix={stat.suffix} label={stat.label} />
-              </SectionReveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <div className="w-0 h-0" />
 
       {/* CTA */}
       <section className="bg-[#C9A96E] py-20">

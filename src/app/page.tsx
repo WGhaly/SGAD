@@ -5,14 +5,13 @@ import type { Metadata } from "next";
 import HeroSlider from "@/components/home/HeroSlider";
 import ClientsSection from "@/components/home/ClientsSection";
 import SectionReveal from "@/components/SectionReveal";
-import AnimatedCounter from "@/components/AnimatedCounter";
-import { projects, categories, services, stats } from "@/lib/data";
+import { projects, categories, services } from "@/lib/data";
 import type { ProjectCategory } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Al Safwa Group for Architecture & Decoration | SGAD",
   description:
-    "Egypt's leading turnkey interior fitout contractor. 302+ completed projects across banking, hospitality, restaurants and corporate sectors.",
+    "Egypt's leading turnkey interior fitout contractor for banking, hospitality, restaurants and corporate sectors.",
 };
 
 const categoryOrder: ProjectCategory[] = [
@@ -55,24 +54,8 @@ export default function HomePage() {
               <p className="text-white/50 leading-relaxed mb-10 max-w-lg">
                 Al Safwa Group for Architecture and Decoration (SGAD) executes bespoke
                 interior fitouts for banks, hotels, restaurants and corporate clients
-                across Egypt. From a 351M EGP bank network rollout to an intimate Red
-                Sea boutique hotel — our name stands for precision, craft and unfailing
-                delivery.
+                across Egypt — our name stands for precision, craft and unfailing delivery.
               </p>
-
-              {/* Inline mini-stats */}
-              <div className="grid grid-cols-3 gap-6 pb-10 border-b border-white/10 mb-10">
-                {[
-                  { n: "625M+", l: "EGP Project Value" },
-                  { n: "6",     l: "Banking Institutions" },
-                  { n: "4",     l: "Industry Sectors" },
-                ].map(({ n, l }) => (
-                  <div key={l}>
-                    <p className="font-serif text-3xl lg:text-4xl font-bold text-[#C9A96E]">{n}</p>
-                    <p className="text-[9px] tracking-[0.2em] uppercase text-white/30 font-medium mt-1 leading-tight">{l}</p>
-                  </div>
-                ))}
-              </div>
 
               <Link
                 href="/about"
@@ -94,11 +77,6 @@ export default function HomePage() {
                   sizes="50vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1A1F35]/60 to-transparent" />
-                {/* Floating value badge */}
-                <div className="absolute bottom-10 left-10 bg-[#C9A96E] px-5 py-3">
-                  <p className="text-[#0A0A0C] font-serif text-2xl font-bold leading-none">351M</p>
-                  <p className="text-[#0A0A0C]/60 text-[9px] tracking-[0.15em] uppercase font-semibold mt-0.5">EGP — Largest Project</p>
-                </div>
               </div>
             </SectionReveal>
           </div>
@@ -170,7 +148,7 @@ export default function HomePage() {
               href="/projects"
               className="flex-shrink-0 inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-semibold text-white/30 hover:text-[#C9A96E] transition-colors group"
             >
-              All 302+ Projects <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+              View All Projects <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </SectionReveal>
 
@@ -226,31 +204,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── 5. FACTS & FIGURES ──────────────────────────────── */}
-      <section className="section-py relative bg-[#0A0A0C] overflow-hidden border-t border-white/5">
-        <p
-          aria-hidden="true"
-          className="pointer-events-none select-none absolute inset-0 flex items-center justify-center font-serif font-bold text-white/[0.025] leading-none"
-          style={{ fontSize: "clamp(6rem, 17vw, 18rem)" }}
-        >
-          SGAD
-        </p>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
-          <SectionReveal className="text-center mb-16">
-            <p className="eyebrow mb-3">Facts &amp; Figures</p>
-            <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white">By the Numbers</h2>
-          </SectionReveal>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14">
-            {stats.map((stat, i) => (
-              <SectionReveal key={stat.label} delay={i * 0.1} direction="none">
-                <AnimatedCounter value={stat.value} suffix={stat.suffix} label={stat.label} />
-              </SectionReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 6. CLIENTS ──────────────────────────────────────── */}
+      {/* ─── 5. CLIENTS ──────────────────────────────────────── */}
       <section className="bg-[#F0EDE7]">
         <ClientsSection />
       </section>
