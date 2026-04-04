@@ -14,26 +14,19 @@ const sectors = [
     id: "banking",
     title: "Banking & Finance",
     clients: [
-      "EGBank", "Arab Investment Bank", "FABMISR", "Arab African International Bank",
-      "Abu Dhabi Islamic Bank", "Attijariwafa Bank", "National Bank of Egypt",
-      "Banque Misr", "HSBC Egypt", "QNB Egypt",
+      "EGBank", "Arab International Bank", "FABMISR", "Arab African International Bank",
+      "Abu Dhabi Islamic Bank", "Attijariwafa Bank",
     ],
   },
   {
     id: "hospitality",
     title: "Hotels & Hospitality",
-    clients: ["Casa Cook / TUI Hotels", "Conrad Hotels & Resorts", "Three Corners Hotels",
-      "Marriott International", "Hilton Hotels"],
+    clients: ["Casa Cook Hotels", "Conrad Hotels & Resorts", "Three Corners Hotels & Resorts"],
   },
   {
     id: "restaurants",
     title: "Restaurants & F&B",
-    clients: ["Mado Egypt", "Wahet Omar", "Cairo Kitchen", "Abou El Sid"],
-  },
-  {
-    id: "corporate",
-    title: "Corporate & Commercial",
-    clients: ["Various confidential multinational & Egyptian corporations"],
+    clients: ["Wahet Omar"],
   },
 ];
 

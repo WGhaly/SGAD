@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       { pathname: "/portfolio/**" },
       { pathname: "/sgad-logo.png" },
       { pathname: "/favicon.png" },
+      { pathname: "/Logos/**" },
     ],
   },
   async headers() {

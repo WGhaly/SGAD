@@ -13,7 +13,6 @@ const sectors: { id: "all" | ProjectCategory; label: string }[] = [
   { id: "banking", label: "Banking & Finance" },
   { id: "hospitality", label: "Hospitality" },
   { id: "restaurants", label: "Restaurants" },
-  { id: "corporate", label: "Corporate" },
 ];
 
 export default function ClientsSection() {
@@ -61,13 +60,17 @@ export default function ClientsSection() {
         </SectionReveal>
 
         {/* Logo grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-px bg-[#1A1F35]/10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-px bg-[#1A1F35]/10">
           {filtered.map((client, i) => (
             <SectionReveal key={`${client.name}-${active}`} delay={i * 0.04} direction="none">
-              <div className="bg-[#F0EDE7] h-24 flex items-center justify-center px-4 hover:bg-white transition-colors group">
-                <span className="text-center text-sm font-medium text-[#1A1F35]/50 group-hover:text-[#1A1F35] transition-colors leading-tight">
-                  {client.name}
-                </span>
+              <div className="bg-[#F0EDE7] h-28 flex items-center justify-center px-6 hover:bg-white transition-colors group">
+                <Image
+                  src={client.logo}
+                  alt={client.name}
+                  width={160}
+                  height={80}
+                  className="object-contain max-h-16 w-auto opacity-60 group-hover:opacity-100 transition-opacity"
+                />
               </div>
             </SectionReveal>
           ))}

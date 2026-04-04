@@ -36,7 +36,7 @@ export interface Service {
 export interface Client {
   name: string;
   sector: ProjectCategory | "all";
-  logo?: string;
+  logo: string;
 }
 
 export interface Testimonial {
@@ -400,23 +400,20 @@ export const testimonials: Testimonial[] = [
 
 // ─── Clients ─────────────────────────────────────────────────────────────────
 
-export const clients: Array<{ name: string; sector: ProjectCategory }> = [
-  // Banking — confirmed from portfolio
-  { name: "EGBank", sector: "banking" },
-  { name: "Arab Investment Bank", sector: "banking" },
-  { name: "FABMISR", sector: "banking" },
-  { name: "AAIB", sector: "banking" },
-  { name: "ADIB Egypt", sector: "banking" },
-  { name: "Attijariwafa Bank", sector: "banking" },
-  // Hospitality — confirmed from portfolio
-  { name: "Casa Cook", sector: "hospitality" },
-  { name: "Conrad Hotels", sector: "hospitality" },
-  { name: "Three Corners", sector: "hospitality" },
-  // Restaurants — confirmed from portfolio
-  { name: "Mado Egypt", sector: "restaurants" },
-  { name: "Wahet Omar", sector: "restaurants" },
-  // Corporate — confirmed from portfolio
-  { name: "Edraki Company", sector: "corporate" },
+export const clients: Array<{ name: string; sector: ProjectCategory; logo: string }> = [
+  // Banking
+  { name: "EGBank", sector: "banking", logo: "/Logos/egbank.jpeg" },
+  { name: "Arab International Bank", sector: "banking", logo: "/Logos/aib.jpeg" },
+  { name: "FABMISR", sector: "banking", logo: "/Logos/fabmisr.jpeg" },
+  { name: "AAIB", sector: "banking", logo: "/Logos/aaib.jpeg" },
+  { name: "ADIB", sector: "banking", logo: "/Logos/adib.jpeg" },
+  { name: "Attijariwafa Bank", sector: "banking", logo: "/Logos/attijariwafa.jpeg" },
+  // Hospitality
+  { name: "Casa Cook Hotels", sector: "hospitality", logo: "/Logos/casa-cook.jpeg" },
+  { name: "Conrad Hotels & Resorts", sector: "hospitality", logo: "/Logos/conrad.jpeg" },
+  { name: "Three Corners Hotels & Resorts", sector: "hospitality", logo: "/Logos/three-corners.jpeg" },
+  // Restaurants
+  { name: "Wahet Omar", sector: "restaurants", logo: "/Logos/wahet-omar.jpeg" },
 ];
 
 // ─── Hero slides ──────────────────────────────────────────────────────────────
