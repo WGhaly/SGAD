@@ -131,7 +131,7 @@ function ChangePasswordModal({
                   type={showPass ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm text-gray-900 pr-10 focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
                   placeholder="Min. 8 characters"
                   autoComplete="new-password"
                 />
@@ -150,7 +150,7 @@ function ChangePasswordModal({
                 type={showPass ? "text" : "password"}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
                 placeholder="Repeat password"
                 autoComplete="new-password"
               />
@@ -249,7 +249,7 @@ function CreateAdminModal({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
               placeholder="Admin name"
             />
           </div>
@@ -259,7 +259,7 @@ function CreateAdminModal({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
               placeholder="admin@example.com"
               autoComplete="off"
             />
@@ -271,7 +271,7 @@ function CreateAdminModal({
                 type={showPass ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm text-gray-900 pr-10 focus:outline-none focus:ring-2 focus:ring-[#C9A96E]"
                 placeholder="Min. 8 characters"
                 autoComplete="new-password"
               />
