@@ -29,13 +29,13 @@ export async function handleSignIn(
     // 1. Look up the user
     const user = await prisma.user.findUnique({ where: { email: trimmedEmail } });
     if (!user) {
-      return { error: "Invalid email or password. Please try again." };
+      return { error: "DEBUG: No user found for this email." };
     }
 
     // 2. Verify password
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      return { error: "Invalid email or password. Please try again." };
+      return { error: "DEBUG: Email found but password does not match." };
     }
 
     // 3. Build a JWT token compatible with NextAuth's expected shape
