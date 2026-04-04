@@ -15,7 +15,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   const imageCount = await prisma.media.count({ where: { type: "image" } });
-  const videoCount = await prisma.media.count({ where: { type: "video" } });
+  const videoCount = await prisma.media.count({ where: { type: "youtube" } });
 
   const recentProjects = await prisma.project.findMany({
     take: 5,
