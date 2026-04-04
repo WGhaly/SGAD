@@ -186,7 +186,7 @@ export default function HomePage() {
                 <Link
                   href={`/projects/${project.category}/${project.slug}`}
                   className={`group block relative overflow-hidden bg-[#111118] ${
-                    i === 0 ? "aspect-[16/9]" : "aspect-[4/3]"
+                    i === 0 ? "aspect-[16/9]" : i === 1 ? "aspect-[4/3] lg:aspect-auto lg:h-full" : "aspect-[4/3]"
                   }`}
                 >
                   <Image
