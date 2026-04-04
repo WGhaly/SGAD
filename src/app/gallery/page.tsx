@@ -105,16 +105,16 @@ export default async function GalleryPage() {
               <p className="text-lg">No projects published yet.</p>
             </div>
           ) : (
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {(projects as (typeof projects)[number][]).map((project, index) => (
-                <SectionReveal key={project.id} delay={index * 0.04}>
+                <SectionReveal key={project.id} delay={index * 0.04} className="h-full">
                   <Link
                     href={`/gallery/${project.id}`}
-                    className="group block mb-6 break-inside-avoid"
+                    className="group flex flex-col h-full"
                   >
-                    <div className="relative overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-xl transition-shadow duration-300">
+                    <div className="flex flex-col h-full overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-xl transition-shadow duration-300">
                       {/* Cover image */}
-                      <div className="relative aspect-[4/3] overflow-hidden">
+                      <div className="relative aspect-[4/3] overflow-hidden shrink-0">
                         {project.coverImage ? (
                           <Image
                             src={project.coverImage}
@@ -153,7 +153,7 @@ export default async function GalleryPage() {
                       </div>
 
                       {/* Card body */}
-                      <div className="p-5 bg-white">
+                      <div className="p-5 bg-white flex flex-col flex-1">
                         <h3 className="font-serif text-gray-900 font-semibold text-lg leading-snug mb-1.5 group-hover:text-[#1A1F35] transition">
                           {project.title}
                         </h3>
@@ -167,7 +167,7 @@ export default async function GalleryPage() {
                           {project.description}
                         </p>
 
-                        <div className="flex items-center gap-1 mt-4 text-[#1A1F35] text-sm font-medium group-hover:text-[#C9A84C] transition">
+                        <div className="flex items-center gap-1 mt-auto pt-4 text-[#1A1F35] text-sm font-medium group-hover:text-[#C9A84C] transition">
                           View Project <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
