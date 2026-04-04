@@ -15,15 +15,14 @@ const channels = [
     icon: Phone,
     label: "Call Us",
     lines: [
-      { display: "+20 105 005 7511", href: "tel:+201050057511" },
-      { display: "+20 105 005 7544", href: "tel:+201050057544" },
+      { display: "010 50057511", href: "tel:+201050057511" },
     ],
     note: "Sunday – Thursday · 9 AM – 5 PM",
   },
   {
     icon: Mail,
     label: "Email",
-    lines: [{ display: "info@sgad.com.eg", href: "mailto:info@sgad.com.eg" }],
+    lines: [{ display: "info@alsafwagroup.info", href: "mailto:info@alsafwagroup.info" }],
     note: "We respond within one business day",
   },
   {

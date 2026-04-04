@@ -6,13 +6,22 @@ import { prisma } from "@/lib/db";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category");
-  const status = searchParams.get("status") ?? "published";
+  const requestedStatus = searchParams.get("status") ?? "published";
+
+  // Only authenticated admins may request non-published or all projects.
+  // Unauthenticated callers always get published only (prevents draft leak).
+  let status: string | undefined = "published";
+  if (requestedStatus !== "published") {
+    const session = await auth();
+    if (session?.user?.email) {
+      status = requestedStatus === "all" ? undefined : requestedStatus;
+    }
+  }
 
   const projects = await prisma.project.findMany({
     where: {
       ...(category ? { category } : {}),
-      // Admins can request drafts via ?status=all
-      ...(status !== "all" ? { status } : {}),
+      ...(status !== undefined ? { status } : {}),
     },
     include: {
       media: { orderBy: { sortOrder: "asc" } },

@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const updated = await prisma.media.update({
     where: { id },
     data: {
-      ...(body?.caption !== undefined && { caption: String(body.caption) }),
+      ...(body?.caption !== undefined && { caption: String(body.caption).slice(0, 500) }),
       ...(body?.sortOrder !== undefined && { sortOrder: Number(body.sortOrder) }),
     },
   });

@@ -2,9 +2,27 @@
 
 import { encode } from "@auth/core/jwt";
 import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+
+// ─── In-memory rate limiter for the login server action ──────────────────────
+// Sits directly in the action so it fires regardless of how the client calls it.
+// Note: resets on serverless cold-start (acceptable for non-gov site).
+const signInAttempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_SIGNIN_ATTEMPTS = 8;
+const SIGNIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+function isSignInRateLimited(key: string): boolean {
+  const now = Date.now();
+  const entry = signInAttempts.get(key);
+  if (!entry || now > entry.resetAt) {
+    signInAttempts.set(key, { count: 1, resetAt: now + SIGNIN_WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > MAX_SIGNIN_ATTEMPTS;
+}
 
 const SESSION_COOKIE =
   process.env.NODE_ENV === "production"
@@ -24,6 +42,16 @@ export async function handleSignIn(
   const safeRedirect = redirectTo.startsWith("/admin/") ? redirectTo : "/admin/dashboard";
 
   try {
+    // Rate-limit by IP to slow brute-force attempts
+    const h = await headers();
+    const ip =
+      h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      h.get("x-real-ip") ??
+      "unknown";
+    if (isSignInRateLimited(ip)) {
+      return { error: "Too many login attempts. Please wait 15 minutes and try again." };
+    }
+
     const trimmedEmail = email.trim().toLowerCase();
 
     // 1. Look up the user
